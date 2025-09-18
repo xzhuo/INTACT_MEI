@@ -42,7 +42,7 @@ rule intact_mei:
         tsv = "HG005.limeaid.v134.intact.tsv",
         info = "HG005.info.hg38.txt"
     container:
-        "docker://xiaoyuz/l1me-aid:1.3.4"
+        "docker://xiaoyuz/biotools:latest"
     shell:
         "python3 scripts/limeaid_intact_mei.py --input {input.limeaid} --vcf {input.vcf} --flag-table {output.info} --out {output.tsv}"
 
@@ -73,5 +73,7 @@ rule extract_fa:
         VCF
     output:
         "HG005.indel.fa"
+    container:
+        "docker://xiaoyuz/biotools:latest"
     shell:
         "perl scripts/extract_fa.pl {input} > {output}"
