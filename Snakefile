@@ -3,6 +3,8 @@ HG38 = "hg38.fa"
 
 rule all:
   input:
+    "HG005.indel.fa",
+    "HG005.indel.fa.out",
     "HG005.limeaid.v134.tsv",
     "HG005.limeaid.v134.intact.tsv",
     "HG005.info.hg38.txt.gz",
@@ -40,8 +42,8 @@ rule intact_mei:
 
 rule limeaid:
     input:
-        fa = "HG005.ins.fa",
-        rmsk = "HG005.ins.fa.out"
+        fa = "HG005.indel.fa",
+        rmsk = "HG005.indel.fa.out"
     output:
         "HG005.limeaid.v134.tsv"
     shell:
@@ -52,7 +54,7 @@ rule rmsk:
     input:
         "HG005.indel.fa"
     output:
-        "HG005.ins.fa.out"
+        "HG005.indel.fa.out"
     shell:
         "/opt/RepeatMasker/RepeatMasker -species human {input}"
 
