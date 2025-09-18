@@ -36,4 +36,3 @@ End-to-end workflow to filter LIMEaid TSVs for intact/LTR events and annotate a 
 - Header lines: `bcftools view -h output.annot.vcf.gz | grep -E 'INTACT_(MEI|FLAG)'`
 - Annotated rows: `bcftools view -H -i 'INFO/INTACT_FLAG!=""' output.annot.vcf.gz | head`
 - Counts: `bcftools view -H -i 'INFO/INTACT_FLAG!=""' output.annot.vcf.gz | wc -l`
-
