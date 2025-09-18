@@ -80,4 +80,4 @@ rule extract_fa:
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
-        "perl scripts/extract_fa.pl {input} > {output}"
+        "perl scripts/extract.indel.seq.pl {input} > {output}"
