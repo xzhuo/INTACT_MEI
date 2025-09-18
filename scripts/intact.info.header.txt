@@ -1,0 +1,2 @@
+##INFO=<ID=INTACT_MEI,Number=1,Type=String,Description="MEI subtype from limeaid intact flags">
+##INFO=<ID=INTACT_FLAG,Number=1,Type=String,Description="INTACT status from limeaid (e.g., INTACT, INTACT_3end, soloLTR, LTR-ERV-LTR)">
