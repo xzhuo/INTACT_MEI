@@ -18,6 +18,8 @@ rule annotate_info:
         header = "scripts/intact.info.header.txt"
     output:
         "HG005.pav.intact_mei.hg38.vcf.gz"
+    container:
+        "docker://xiaoyuz/biotools:latest"
     shell:
         "bcftools annotate -a {input.info} -c CHROM,POS,~ID,INFO/INTACT_MEI,INFO/INTACT_FLAG -h {input.header} -Oz -o {output} {input.vcf}"
 
@@ -27,6 +29,8 @@ rule zip_info:
         "HG005.info.hg38.txt"
     output:
         "HG005.info.hg38.txt.gz"
+    container:
+        "docker://xiaoyuz/biotools:latest"
     shell:
         "bgzip {input}; tabix -s 1 -b 2 -e 2 {input}.gz"
 
@@ -37,6 +41,8 @@ rule intact_mei:
     output:
         tsv = "HG005.limeaid.v134.intact.tsv",
         info = "HG005.info.hg38.txt"
+    container:
+        "docker://xiaoyuz/l1me-aid:1.3.4"
     shell:
         "python3 scripts/limeaid_intact_mei.py --input {input.limeaid} --vcf {input.vcf} --flag-table {output.info} --out {output.tsv}"
 
@@ -46,6 +52,8 @@ rule limeaid:
         rmsk = "HG005.indel.fa.out"
     output:
         "HG005.limeaid.v134.tsv"
+    container:
+        "docker://xiaoyuz/l1me-aid:1.3.4"
     shell:
         "python3 /opt/src/L1ME-AID/limeaid.v1.3.4-beta.py -i {input.fa} -g {HG38} -r {input.rmsk} -o {output}"
 
@@ -55,6 +63,8 @@ rule rmsk:
         "HG005.indel.fa"
     output:
         "HG005.indel.fa.out"
+    container:
+        "docker://xiaoyuz/l1me-aid:1.3.4"
     shell:
         "/opt/RepeatMasker/RepeatMasker -species human {input}"
 
