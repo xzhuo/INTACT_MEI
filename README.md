@@ -5,12 +5,9 @@ End-to-end workflow to filter LIMEaid TSVs for intact/LTR events and annotate a 
 ## Components
 
 - `limeaid_filter.py` — Produce:
-- Intact/LTR-only TSV (`--out`)
-- 5-column flag table (`--flag-table`): `CHROM POS ID INTACT_MEI INTACT_FLAG`
-- CHROM/POS are read from the given VCF by matching variant `ID` (no ID parsing).
-- `annotate_intact_info.sh` — Adds `INTACT_MEI` and `INTACT_FLAG` to VCF INFO using the flag table (CHROM,POS,~ID match).
-- `limeaid_process.sh` — One-shot script: filtering + annotation.
-- `environment.yml` — Conda environment for reproducibility.
+  - Intact/LTR-only TSV (`--out`)
+  - 5-column flag table (`--flag-table`): `CHROM POS ID INTACT_MEI INTACT_FLAG`
+  - CHROM/POS are read from the given VCF by matching variant `ID` (no ID parsing).
 
 ## Requirements
 
@@ -22,13 +19,10 @@ End-to-end workflow to filter LIMEaid TSVs for intact/LTR events and annotate a 
 1) Generate outputs from a LIMEaid TSV and VCF:
    - `./limeaid_filter.py --input input.limeaid.tsv --vcf input.vcf.gz --flag-table output.info.txt --out output.intact.tsv`
 2) Annotate the VCF
-   - One-shot:
-     - `./limeaid_process.sh input.limeaid.tsv input.vcf.gz output.intact.tsv output.info.txt output.annot.vcf.gz`
    - Manual:
      - `sort -k1,1 -k2,2n output.info.txt | bgzip -c > output.info.txt.gz`
      - `tabix -s 1 -b 2 -e 2 output.info.txt.gz`
-     - `printf '%s\n' '##INFO=<ID=INTACT_MEI,Number=1,Type=String,Description="MEI subtype from limeaid intact flags">' '##INFO=<ID=INTACT_FLAG,Number=1,Type=String,Description="INTACT status from limeaid (e.g., INTACT, INTACT_3end)">' > intact.info.hdr`
-     - `bcftools annotate -a output.info.txt.gz -c CHROM,POS,~ID,INFO/INTACT_MEI,INFO/INTACT_FLAG -h intact.info.hdr -Oz -o output.annot.vcf.gz input.vcf.gz`
+     - `bcftools annotate -a output.info.txt.gz -c CHROM,POS,~ID,INFO/INTACT_MEI,INFO/INTACT_FLAG -h scripts/intact.info.header.txt -Oz -o output.annot.vcf.gz input.vcf.gz`
      - `bcftools index -t output.annot.vcf.gz`
 
 ## Behavior
