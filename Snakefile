@@ -8,7 +8,9 @@ rule all:
     "HG005.limeaid.v134.tsv",
     "HG005.limeaid.v134.intact.tsv",
     "HG005.info.hg38.txt.gz",
-    "HG005.pav.intact_mei.hg38.vcf.gz"
+    "HG005.info.hg38.txt.gz.tbi",
+    "HG005.pav.intact_mei.hg38.vcf.gz",
+    "HG005.pav.intact_mei.hg38.vcf.gz.tbi"
 
 rule annotate_info:
     # bcftools not in the dockerfile.
@@ -17,22 +19,24 @@ rule annotate_info:
         info = "HG005.info.hg38.txt.gz",
         header = "scripts/intact.info.header.txt"
     output:
-        "HG005.pav.intact_mei.hg38.vcf.gz"
+        gz = "HG005.pav.intact_mei.hg38.vcf.gz",
+        tbi = "HG005.pav.intact_mei.hg38.vcf.gz.tbi"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
-        "bcftools annotate -a {input.info} -c CHROM,POS,~ID,INFO/INTACT_MEI,INFO/INTACT_FLAG -h {input.header} -Oz -o {output} {input.vcf}"
+        "bcftools annotate -a {input.info} -c CHROM,POS,~ID,INFO/INTACT_MEI,INFO/INTACT_FLAG -h {input.header} -Oz -o {output.gz} {input.vcf} && bcftools index -t {output.gz}"
 
 rule zip_info:
     # bgzip and tabix not in the dockerfile.
     input:
         "HG005.info.hg38.txt"
     output:
-        "HG005.info.hg38.txt.gz"
+        gz = "HG005.info.hg38.txt.gz",
+        tbi = "HG005.info.hg38.txt.gz.tbi"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
-        "bgzip {input}; tabix -s 1 -b 2 -e 2 {input}.gz"
+        "bgzip {input} && tabix -s 1 -b 2 -e 2 {input}.gz"
 
 rule intact_mei:
     input:
