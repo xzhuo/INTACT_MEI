@@ -364,7 +364,7 @@ def main():
     # Write all TSV or intact TSV
     with open(args.out_tsv, "w") as out:
         output_rows = intact_rows if args.intact_only else rows
-        for F in intact_rows:
+        for F in output_rows:
             out.write("\t".join(F) + "\n")
 
     # Write 5-col flag table (no header) from intact rows using CHROM,POS from VCF by ID
