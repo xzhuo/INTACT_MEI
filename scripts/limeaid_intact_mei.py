@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 limeaid_filter.py
-
+By Ronghan Li
 Python port of the original Perl script `limeaid.filter.pl` with matching logic
 and I/O. Adds optional CLI utilities to (a) restrict output to rows flagged as
 INTACT or LTR, and (b) export a BED with genotype information joined from a VCF.
