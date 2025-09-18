@@ -11,15 +11,23 @@ RUN rm /opt/RepeatMasker/Libraries/famdb/*
 
 # Install full dfam3.8 database
 # No, don't do this. It will be too big. Try to mount a local directory instead.
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.0.h5.gz
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.1.h5.gz
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.2.h5.gz
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.3.h5.gz
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.4.h5.gz
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.5.h5.gz
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.6.h5.gz
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.7.h5.gz
-# RUN wget https://www.dfam.org/releases/Dfam_3.8/families/FamDB/dfam38-1_full.8.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.0.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.1.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.2.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.3.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.4.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.5.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.6.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.7.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.8.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.9.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.10.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.11.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.12.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.13.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.14.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.15.h5.gz
+# RUN wget https://www.dfam.org/releases/Dfam_3.9/families/FamDB/dfam39_full.16.h5.gz
 # RUN /opt/RepeatMasker/tetoolsDfamUpdate.pl
 
 # Install L1ME-AID
