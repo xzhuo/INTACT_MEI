@@ -193,9 +193,9 @@ def filter_l1(F, distance):
             repstart = s if repstart is None or (s is not None and s < repstart) else repstart
             repleft = l if repleft is None or (l is not None and l < repleft) else repleft
 
-    if F[10] == "No_Flags" and repstart is not None and repleft is not None and repstart < 50 and repleft < 50:
+    if F[10] == "No_Flags" and repstart is not None and repleft is not None and repstart < distance and repleft < distance:
         F[10] = "INTACT"
-    elif F[10] == "No_Flags" and repleft is not None and repleft < 50:
+    elif F[10] == "No_Flags" and repleft is not None and repleft < distance:
         F[10] = "INTACT_3end"
     return F
 
@@ -218,9 +218,9 @@ def filter_sva(F, distance):
             repstart = s if repstart is None or (s is not None and s < repstart) else repstart
             repleft = l if repleft is None or (l is not None and l < repleft) else repleft
 
-    if F[10] == "No_Flags" and repstart is not None and repleft is not None and repstart < 50 and repleft < 50:
+    if F[10] == "No_Flags" and repstart is not None and repleft is not None and repstart < distance and repleft < distance:
         F[10] = "INTACT"
-    elif F[10] == "No_Flags" and repleft is not None and repleft < 50:
+    elif F[10] == "No_Flags" and repleft is not None and repleft < distance:
         F[10] = "INTACT_3end"
     return F
 
@@ -340,7 +340,7 @@ def parse_vcf_positions(vcf_path: str) -> Dict[str, Tuple[str, int]]:
     return pos_map
 
 
-def main(argv):
+def main():
     """CLI entrypoint.
 
     Options:
@@ -384,4 +384,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())
