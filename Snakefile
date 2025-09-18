@@ -11,7 +11,7 @@ rule all:
     "HG005.pav.intact_mei.hg38.vcf.gz"
 
 rule annotate_info:
-    # bcftools not in the docker image.
+    # bcftools not in the dockerfile.
     input:
         vcf = VCF,
         info = "HG005.info.hg38.txt.gz",
@@ -24,7 +24,7 @@ rule annotate_info:
         "bcftools annotate -a {input.info} -c CHROM,POS,~ID,INFO/INTACT_MEI,INFO/INTACT_FLAG -h {input.header} -Oz -o {output} {input.vcf}"
 
 rule zip_info:
-    # bgzip and tabix not in the docker image.
+    # bgzip and tabix not in the dockerfile.
     input:
         "HG005.info.hg38.txt"
     output:
