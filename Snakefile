@@ -60,6 +60,7 @@ rule limeaid:
         "docker://xiaoyuz/l1me-aid:1.3.4"
     shell:
         "python3 /opt/src/L1ME-AID/limeaid.v1.3.4-beta.py -i {input.fa} -g {HG38} -r {input.rmsk} -o {output}"
+        # "python3 /opt/src/L1ME-AID/limeaid.v1.3.4-beta.py -i {input.fa} -r {input.rmsk} -o {output}" # much faster without TSD
 
 rule rmsk:
     # mount famdb to /opt/RepeatMasker/Libraries/famdb
