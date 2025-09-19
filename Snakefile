@@ -7,8 +7,8 @@ rule all:
     "HG005.indel.fa.out",
     "HG005.limeaid.v134.tsv",
     "HG005.limeaid.v134.intact.tsv",
-    "HG005.info.hg38.txt.gz",
-    "HG005.info.hg38.txt.gz.tbi",
+    # "HG005.info.hg38.txt.gz",
+    # "HG005.info.hg38.txt.gz.tbi",
     "HG005.pav.intact_mei.hg38.vcf.gz",
     "HG005.pav.intact_mei.hg38.vcf.gz.tbi"
 
