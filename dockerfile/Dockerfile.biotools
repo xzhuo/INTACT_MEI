@@ -1,0 +1,6 @@
+FROM condaforge/miniforge3
+
+RUN conda config --add channels bioconda \
+    && mamba install -y make htslib samtools bcftools bedtools bamtools minimap2 last
+
+RUN pip install modbedtools
