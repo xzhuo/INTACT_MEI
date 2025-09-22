@@ -15,7 +15,7 @@ rule all:
     expand("output/{s}.intact_mei.vcf.gz.tbi", s=VCFs)
 
 rule annotate_info:
-    # bcftools annotate intact MEIs back to the VCF file. bcftools not in the dockerfile.
+    # bcftools annotate intact MEIs back to the VCF file.
     input:
         vcf = "input/{s}.vcf.gz",
         info = "output/{s}.info.txt.gz",
@@ -29,7 +29,7 @@ rule annotate_info:
         "bcftools annotate -a {input.info} -c CHROM,POS,~ID,INFO/INTACT_MEI,INFO/INTACT_FLAG -h {input.header} -Oz -o {output.gz} {input.vcf} && bcftools index -t {output.gz}"
 
 rule zip_info:
-    # bgzip and tabix not in the dockerfile.
+    # bgzip and tabix INTACT elements table for vcftools annotate.
     input:
         "output/{s}.info.txt"
     output:
