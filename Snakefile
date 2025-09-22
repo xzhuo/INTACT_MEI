@@ -1,27 +1,28 @@
-FILES = glob_wildcards('{s}.vcf.gz')
+FILES = glob_wildcards('input/{s}.vcf.gz') # leave input files in the input folder. {s} will be the sample name prefix.
 VCFs = FILES.s
 HG38 = "hg38.fa"
 
 rule all:
   input:
-    expand("{s}.indel.fa", s=VCFs),
-    expand("{s}.indel.fa.out", s=VCFs),
-    expand("{s}.limeaid.v134.tsv", s=VCFs),
-    expand("{s}.limeaid.v134.intact.tsv", s=VCFs),
-    # expand("{s}.info.hg38.txt.gz", s=VCFs),
-    # expand("{s}.info.hg38.txt.gz.tbi", s=VCFs),
-    expand("{s}.intact_mei.hg38.vcf.gz", s=VCFs),
-    expand("{s}.intact_mei.hg38.vcf.gz.tbi", s=VCFs),
+    # direct output to the output folder
+    expand("output/{s}.indel.fa", s=VCFs), 
+    expand("output/{s}.indel.fa.out", s=VCFs),
+    expand("output/{s}.limeaid.v134.tsv", s=VCFs),
+    expand("output/{s}.limeaid.v134.intact.tsv", s=VCFs),
+    # expand("output/{s}.info.hg38.txt.gz", s=VCFs),
+    # expand("output/{s}.info.hg38.txt.gz.tbi", s=VCFs),
+    expand("output/{s}.intact_mei.hg38.vcf.gz", s=VCFs),
+    expand("output/{s}.intact_mei.hg38.vcf.gz.tbi", s=VCFs)
 
 rule annotate_info:
     # bcftools not in the dockerfile.
     input:
-        vcf = "{s}.vcf.gz",
-        info = "{s}.info.hg38.txt.gz",
+        vcf = "input/{s}.vcf.gz",
+        info = "output/{s}.info.hg38.txt.gz",
         header = "scripts/intact.info.header.txt"
     output:
-        gz = "{s}.intact_mei.hg38.vcf.gz",
-        tbi = "{s}.intact_mei.hg38.vcf.gz.tbi"
+        gz = "output/{s}.intact_mei.hg38.vcf.gz",
+        tbi = "output/{s}.intact_mei.hg38.vcf.gz.tbi"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
@@ -30,10 +31,10 @@ rule annotate_info:
 rule zip_info:
     # bgzip and tabix not in the dockerfile.
     input:
-        "{s}.info.hg38.txt"
+        "output/{s}.info.hg38.txt"
     output:
-        gz = "{s}.info.hg38.txt.gz",
-        tbi = "{s}.info.hg38.txt.gz.tbi"
+        gz = "output/{s}.info.hg38.txt.gz",
+        tbi = "output/{s}.info.hg38.txt.gz.tbi"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
@@ -41,11 +42,11 @@ rule zip_info:
 
 rule intact_mei:
     input:
-        limeaid = "{s}.limeaid.v134.tsv",
-        vcf = "{s}.vcf.gz"
+        limeaid = "output/{s}.limeaid.v134.tsv",
+        vcf = "input/{s}.vcf.gz"
     output:
-        tsv = "{s}.limeaid.v134.intact.tsv",
-        info = "{s}.info.hg38.txt"
+        tsv = "output/{s}.limeaid.v134.intact.tsv",
+        info = "output/{s}.info.hg38.txt"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
@@ -53,10 +54,10 @@ rule intact_mei:
 
 rule limeaid:
     input:
-        fa = "{s}.indel.fa",
-        rmsk = "{s}.indel.fa.out"
+        fa = "output/{s}.indel.fa",
+        rmsk = "output/{s}.indel.fa.out"
     output:
-        "{s}.limeaid.v134.tsv"
+        "output/{s}.limeaid.v134.tsv"
     container:
         "docker://xiaoyuz/l1me-aid:1.3.4"
     shell:
@@ -66,9 +67,9 @@ rule limeaid:
 rule rmsk:
     # mount famdb to /opt/RepeatMasker/Libraries/famdb
     input:
-        "{s}.indel.fa"
+        "output/{s}.indel.fa"
     output:
-        "{s}.indel.fa.out"
+        "output/{s}.indel.fa.out"
     container:
         "docker://xiaoyuz/l1me-aid:1.3.4"
     shell:
@@ -76,9 +77,9 @@ rule rmsk:
 
 rule extract_fa:
     input:
-        "{s}.vcf.gz"
+        "input/{s}.vcf.gz"
     output:
-        "{s}.indel.fa"
+        "output/{s}.indel.fa"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
