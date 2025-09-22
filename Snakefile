@@ -15,7 +15,7 @@ rule all:
     expand("output/{s}.intact_mei.hg38.vcf.gz.tbi", s=VCFs)
 
 rule annotate_info:
-    # bcftools not in the dockerfile.
+    # bcftools annotate intact MEIs back to the VCF file. bcftools not in the dockerfile.
     input:
         vcf = "input/{s}.vcf.gz",
         info = "output/{s}.info.hg38.txt.gz",
@@ -41,6 +41,7 @@ rule zip_info:
         "bgzip {input} && tabix -s 1 -b 2 -e 2 {input}.gz"
 
 rule intact_mei:
+    # run the INTACT_MEI script to flag INTACT L1ME-AID results. extract INTACT elements to a table for vcftools annotate.
     input:
         limeaid = "output/{s}.limeaid.v134.tsv",
         vcf = "input/{s}.vcf.gz"
@@ -53,6 +54,7 @@ rule intact_mei:
         "python3 scripts/limeaid_intact_mei.py --input {input.limeaid} --vcf {input.vcf} --flag-table {output.info} --out {output.tsv}"
 
 rule limeaid:
+    # run L1ME-AID v1.3.4
     input:
         fa = "output/{s}.indel.fa",
         rmsk = "output/{s}.indel.fa.out"
@@ -65,7 +67,7 @@ rule limeaid:
         # "python3 /opt/src/L1ME-AID/limeaid.v1.3.4-beta.py -i {input.fa} -r {input.rmsk} -o {output}" # much faster without TSD
 
 rule rmsk:
-    # mount famdb to /opt/RepeatMasker/Libraries/famdb
+    # mount famdb to /opt/RepeatMasker/Libraries/famdb and run RepeatMasker
     input:
         "output/{s}.indel.fa"
     output:
@@ -76,6 +78,7 @@ rule rmsk:
         "/opt/RepeatMasker/RepeatMasker -species human {input}"
 
 rule extract_fa:
+    # extract indel sequences >= 50bp from VCF
     input:
         "input/{s}.vcf.gz"
     output:
