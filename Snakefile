@@ -9,20 +9,20 @@ rule all:
     expand("output/{s}.indel.fa.out", s=VCFs),
     expand("output/{s}.limeaid.v134.tsv", s=VCFs),
     expand("output/{s}.limeaid.v134.intact.tsv", s=VCFs),
-    # expand("output/{s}.info.hg38.txt.gz", s=VCFs),
-    # expand("output/{s}.info.hg38.txt.gz.tbi", s=VCFs),
-    expand("output/{s}.intact_mei.hg38.vcf.gz", s=VCFs),
-    expand("output/{s}.intact_mei.hg38.vcf.gz.tbi", s=VCFs)
+    # expand("output/{s}.info.txt.gz", s=VCFs),
+    # expand("output/{s}.info.txt.gz.tbi", s=VCFs),
+    expand("output/{s}.intact_mei.vcf.gz", s=VCFs),
+    expand("output/{s}.intact_mei.vcf.gz.tbi", s=VCFs)
 
 rule annotate_info:
     # bcftools annotate intact MEIs back to the VCF file. bcftools not in the dockerfile.
     input:
         vcf = "input/{s}.vcf.gz",
-        info = "output/{s}.info.hg38.txt.gz",
+        info = "output/{s}.info.txt.gz",
         header = "scripts/intact.info.header.txt"
     output:
-        gz = "output/{s}.intact_mei.hg38.vcf.gz",
-        tbi = "output/{s}.intact_mei.hg38.vcf.gz.tbi"
+        gz = "output/{s}.intact_mei.vcf.gz",
+        tbi = "output/{s}.intact_mei.vcf.gz.tbi"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
@@ -31,10 +31,10 @@ rule annotate_info:
 rule zip_info:
     # bgzip and tabix not in the dockerfile.
     input:
-        "output/{s}.info.hg38.txt"
+        "output/{s}.info.txt"
     output:
-        gz = "output/{s}.info.hg38.txt.gz",
-        tbi = "output/{s}.info.hg38.txt.gz.tbi"
+        gz = "output/{s}.info.txt.gz",
+        tbi = "output/{s}.info.txt.gz.tbi"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
@@ -47,7 +47,7 @@ rule intact_mei:
         vcf = "input/{s}.vcf.gz"
     output:
         tsv = "output/{s}.limeaid.v134.intact.tsv",
-        info = "output/{s}.info.hg38.txt"
+        info = "output/{s}.info.txt"
     container:
         "docker://xiaoyuz/biotools:latest"
     shell:
@@ -67,7 +67,7 @@ rule limeaid:
         # "python3 /opt/src/L1ME-AID/limeaid.v1.3.4-beta.py -i {input.fa} -r {input.rmsk} -o {output}" # much faster without TSD
 
 rule rmsk:
-    # mount famdb to /opt/RepeatMasker/Libraries/famdb and run RepeatMasker
+    # mount famdb to /opt/RepeatMasker/Libraries/famdb and run RepeatMasker from tetools:1.92 and dfam3.9.
     input:
         "output/{s}.indel.fa"
     output:
