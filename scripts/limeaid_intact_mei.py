@@ -168,7 +168,7 @@ def filter_alu(F, distance):
             repstart = vals.get("start")
             repleft = vals.get("left")
 
-    if F[10] == "No_Flags" and repstart is not None and repleft is not None and repstart < distance and repleft < distance:
+    if F[10] == "No_Flags" and repstart is not None and repleft is not None and repstart < distance and repleft < distance and frac > 0.8 and frac < 1.2:
         F[10] = "INTACT"
     elif F[10] == "No_Flags" and repleft is not None and repleft < distance:
         F[10] = "INTACT_3end"
@@ -185,15 +185,17 @@ def filter_l1(F, distance):
     repstart = None
     repleft = None
     total_length = 0
+    frac = 0.0
     for te, vals in te_map.items():
         if te == F[4]:
             total_length += vals.get("sv_length", 0)
+            frac += float(vals.get("frac", 0.0))
             s = vals.get("start")
             l = vals.get("left")
             repstart = s if repstart is None or (s is not None and s < repstart) else repstart
             repleft = l if repleft is None or (l is not None and l < repleft) else repleft
 
-    if F[10] == "No_Flags" and repstart is not None and repleft is not None and repstart < distance and repleft < distance:
+    if F[10] == "No_Flags" and repstart is not None and repleft is not None and repstart < distance and repleft < distance and frac > 0.8 and frac < 1.2:
         F[10] = "INTACT"
     elif F[10] == "No_Flags" and repleft is not None and repleft < distance:
         F[10] = "INTACT_3end"
@@ -210,9 +212,11 @@ def filter_sva(F, distance):
     repstart = None
     repleft = None
     total_length = 0
+    frac = 0.0
     for te, vals in te_map.items():
         if vals.get("class") == F[8]:
             total_length += vals.get("sv_length", 0)
+            frac += float(vals.get("frac", 0.0))
             s = vals.get("start")
             l = vals.get("left")
             repstart = s if repstart is None or (s is not None and s < repstart) else repstart
