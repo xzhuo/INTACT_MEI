@@ -357,8 +357,8 @@ def main():
     p = argparse.ArgumentParser(description="Generate intact-only TSV and 5-col flag table from a limeaid TSV.")
     p.add_argument("--input", required=True, help="Input TSV from limeaid")
     p.add_argument("--intact-only", action="store_true", help="Keep only rows where column 11 contains INTACT or LTR")
-    p.add_argument("--vcf", required=True, help="Input VCF/VCF.GZ used to map ID -> CHROM,POS")
-    p.add_argument("--flag-table", dest="flag_table_path", required=True, help="Output flag table path (no header): CHROM POS ID INTACT_MEI INTACT_FLAG")
+    p.add_argument("--vcf", help="Input VCF/VCF.GZ used to map ID -> CHROM,POS")
+    p.add_argument("--flag-table", dest="flag_table_path", help="Output flag table path (no header): CHROM POS ID INTACT_MEI INTACT_FLAG")
     p.add_argument("--out", dest="out_tsv", required=True, help="Output intact-only TSV path")
     args = p.parse_args()
 
@@ -372,17 +372,18 @@ def main():
             out.write("\t".join(F) + "\n")
 
     # Write 5-col flag table (no header) from intact rows using CHROM,POS from VCF by ID
-    id_to_pos = parse_vcf_positions(args.vcf)
-    with open(args.flag_table_path, "w") as fo:
-        for F in intact_rows:
-            name = F[0]
-            pos_tuple = id_to_pos.get(name)
-            if not pos_tuple:
-                continue
-            chrom, vcf_pos = pos_tuple
-            mei = F[4] if len(F) > 4 else ""
-            flag = F[10] if len(F) > 10 else ""
-            fo.write("\t".join([str(chrom), str(vcf_pos), name, mei, flag]) + "\n")
+    if args.vcf and args.flag_table_path:
+        id_to_pos = parse_vcf_positions(args.vcf)
+        with open(args.flag_table_path, "w") as fo:
+            for F in intact_rows:
+                name = F[0]
+                pos_tuple = id_to_pos.get(name)
+                if not pos_tuple:
+                    continue
+                chrom, vcf_pos = pos_tuple
+                mei = F[4] if len(F) > 4 else ""
+                flag = F[10] if len(F) > 10 else ""
+                fo.write("\t".join([str(chrom), str(vcf_pos), name, mei, flag]) + "\n")
 
     return 0
 
