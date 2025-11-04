@@ -18,37 +18,64 @@ class Variant:
         fields = self.line.split()
         self.chrom = fields[0]
         self.pos = int(fields[1])
-        self.variant_id = fields[2] # don't int it, could be '.'
+        self.variant_id = ":".join([self.chrom, str(self.pos), fields[2]])
         self.mei_anno = fields[3]
         if not (self.mei_anno == "none" or self.mei_anno == "noMEI"):
             (self.mei, self.family, self.strand, self.flag) = self.mei_anno.split(':')
-        self.samples = fields[4].split(',')
+        self.haplotypes = set(fields[4].split(','))
 
     def print(self):
         return self.line
 
-class mergedVariant:
+class mergedVariant: # merged variants at the same coordinates.
     def __init__(self, variant):
         self.chrom = variant.chrom
-        self.start = variant.pos
-        self.end = variant.pos
-        match variant.mei_anno:
-            case "none":
-                self.variant_num = 1
-            case "noMEI":
-                self.variant_num = 2
-            case _:
-                self.variant_num = 0
+        self.variant_ids = []
+        self.mei = {}
+        self.add_variant(variant)
 
     def add_variant(self, variant):
-        self.flags.add(variant.flag)
-        for sample in variant.samples:
-            self.samples.add(sample)
+        self.pos = variant.pos
+        self.variant_ids.append(variant.variant_id)
+        if variant.mei_anno == "none":
+            if hasattr(self, 'missing_haps'):
+                self.missing_haps = self.missing_haps.union(variant.haplotypes)
+            else:
+                self.missing_haps = variant.haplotypes
+        elif variant.mei_anno == "noMEI":
+            if hasattr(self, 'empty_haps'):
+                self.empty_haps = self.empty_haps.intersection(variant.haplotypes)
+            else:
+                self.empty_haps = variant.haplotypes
+        else:
+            if self.mei.get(variant.family):
+                if self.mei[variant.family].get(variant.strand):
+                    self.mei[variant.family][variant.strand]['meis'].append(variant.mei)
+                    self.mei[variant.family][variant.strand]['intact'].append(variant.flag)
+                    self.mei[variant.family][variant.strand]['haps'] = self.mei[variant.family][variant.strand]['haps'].union(variant.haplotypes)
+                else:
+                    self.mei[variant.family][variant.strand] = {'meis':[variant.mei], 'intact':[variant.flag], 'haps':variant.haplotypes}
+            else:
+                self.mei[variant.family] = {variant.strand:{'meis':[variant.mei], 'intact':[variant.flag], 'haps':variant.haplotypes}}
+
+    def combine_variants(self,merged_variant):
+        pass
 
     def print(self):
-        flags_str = ','.join(sorted(self.flags))
-        samples_str = ','.join(sorted(self.samples))
-        return f"{self.chrom}\t{self.pos}\t{self.variant_num}\t{self.mei}:{self.family}:{self.strand}:{flags_str}\t{samples_str}"
+        samples_str = ','.join(sorted(self.haplotypes))
+        return f"{self.chrom}\t{self.start}\t{self.end}\t{self.variant_ids}\t{samples_str}"
+
+def merge_per_pos(input_tsv):
+    list_merged = []
+    with open(input_tsv, 'r') as f:
+        for line in f:
+            variant = Variant(line)
+            if list_merged and list_merged[-1].chrom == variant.chrom and list_merged[-1].end == variant.pos:
+                list_merged[-1].add_variant(variant)
+            else:
+                list_merged.append(mergedVariant(variant))
+    return list_merged
+
 
 def main():
     p = argparse.ArgumentParser(description="merge MEI calling variants from MCgraph VCF file.")
@@ -57,7 +84,14 @@ def main():
     args = p.parse_args()
     input_tsv = args.input
     out_tsv = args.out_tsv
-    pass
+    list_merged = merge_per_pos(input_tsv)
+    for variant in list_merged:
+        chrom = variant.chrom
+        pos = variant.pos
+        for family in variant.mei:
+            for strand in variant.mei[family]:
+                details = variant.mei[family][strand]
+                all_dict[family][strand] = details
 
 if __name__ == "__main__":
     main()
