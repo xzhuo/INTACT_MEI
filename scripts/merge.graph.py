@@ -84,6 +84,9 @@ class mergedVariant: # merged variants at the same coordinates.
 
     def print(self):
         samples_list = []
+        if len(self.empty_haps) > 0:
+            empty_haps_str = ','.join(self.empty_haps)
+            samples_list.append(f"noMEI={empty_haps_str}")
         for family in self.mei:
             for strand in self.mei[family]:
                 details = self.mei[family][strand]
