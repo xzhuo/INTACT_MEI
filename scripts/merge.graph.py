@@ -8,6 +8,8 @@ chr10   331885  0       noMEI   HG02922_hap1,HG02922_hap2
 
 import sys
 import argparse
+import statistics
+from statistics import mode
 
 class Variant:
     def __init__(self, line):
@@ -30,20 +32,23 @@ class Variant:
 class mergedVariant: # merged variants at the same coordinates.
     def __init__(self, variant):
         self.chrom = variant.chrom
+        self.start = variant.pos
         self.variant_ids = []
+        self.missing_haps = set()
+        self.empty_haps = set()
         self.mei = {}
         self.add_variant(variant)
 
     def add_variant(self, variant):
-        self.pos = variant.pos
+        self.end = variant.pos
         self.variant_ids.append(variant.variant_id)
         if variant.mei_anno == "none":
-            if hasattr(self, 'missing_haps'):
+            if len(self.missing_haps) > 0:
                 self.missing_haps = self.missing_haps.union(variant.haplotypes)
             else:
                 self.missing_haps = variant.haplotypes
         elif variant.mei_anno == "noMEI":
-            if hasattr(self, 'empty_haps'):
+            if len(self.empty_haps) > 0:
                 self.empty_haps = self.empty_haps.intersection(variant.haplotypes)
             else:
                 self.empty_haps = variant.haplotypes
@@ -59,11 +64,37 @@ class mergedVariant: # merged variants at the same coordinates.
                 self.mei[variant.family] = {variant.strand:{'meis':[variant.mei], 'intact':[variant.flag], 'haps':variant.haplotypes}}
 
     def combine_variants(self,merged_variant):
-        pass
+        self.start = min(self.start, merged_variant.start)
+        self.end = max(self.end, merged_variant.end)
+        self.variant_ids.extend(merged_variant.variant_ids)
+        self.missing_haps = self.missing_haps.union(merged_variant.missing_haps)
+        self.empty_haps = self.empty_haps.intersection(merged_variant.empty_haps)
+        for family in merged_variant.mei:
+            for strand in merged_variant.mei[family]:
+                details = merged_variant.mei[family][strand]
+                if self.mei.get(family):
+                    if self.mei[family].get(strand):
+                        self.mei[family][strand]['meis'].extend(details['meis'])
+                        self.mei[family][strand]['intact'].extend(details['intact'])
+                        self.mei[family][strand]['haps'] = self.mei[family][strand]['haps'].union(details['haps'])
+                    else:
+                        self.mei[family][strand] = details
+                else:
+                    self.mei[family] = {strand:details}
 
     def print(self):
-        samples_str = ','.join(sorted(self.haplotypes))
-        return f"{self.chrom}\t{self.start}\t{self.end}\t{self.variant_ids}\t{samples_str}"
+        samples_list = []
+        for family in self.mei:
+            for strand in self.mei[family]:
+                details = self.mei[family][strand]
+                the_mei = mode(details['meis'])
+                the_intact = mode(details['intact'])
+                key = f"{the_mei}:{family}:{strand}:{the_intact}"
+                value = ','.join(details['haps'])
+                mei_str = f"{key}={value}"
+                samples_list.append(mei_str)
+        samples_str = ';'.join(samples_list)
+        return f"{self.chrom}\t{self.start}\t{self.end}\t{samples_str}"
 
 def merge_per_pos(input_tsv):
     list_merged = []
@@ -85,13 +116,27 @@ def main():
     input_tsv = args.input
     out_tsv = args.out_tsv
     list_merged = merge_per_pos(input_tsv)
-    for variant in list_merged:
-        chrom = variant.chrom
-        pos = variant.pos
-        for family in variant.mei:
-            for strand in variant.mei[family]:
-                details = variant.mei[family][strand]
-                all_dict[family][strand] = details
+    list_combied_merged = []
+    for merged_variant in list_merged:
+        chrom = merged_variant.chrom
+        pos = merged_variant.start
+        if list_combied_merged and list_combied_merged[-1].chrom == chrom and list_combied_merged[-1].end + 100 >= pos:
+            to_be_combined = False
+            for family in merged_variant.mei:
+                for strand in merged_variant.mei[family]:
+                    if list_combied_merged[-1].mei.get(family):
+                        if list_combied_merged[-1].mei[family].get(strand):
+                            to_be_combined = True
+            if to_be_combined:
+                list_combied_merged[-1].combine_variants(merged_variant)
+            else:
+                list_combied_merged.append(merged_variant)
+        else:
+            list_combied_merged.append(merged_variant)
+
+    with open(out_tsv, 'w') as f:
+        for merged_variant in list_combied_merged:
+            f.write(merged_variant.print() + '\n')
 
 if __name__ == "__main__":
     main()
