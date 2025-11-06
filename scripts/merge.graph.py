@@ -25,7 +25,8 @@ class Variant:
         self.mei_anno = fields[3]
         if not (self.mei_anno == "none" or self.mei_anno == "noMEI"):
             (self.mei, self.family, self.strand, self.flag) = self.mei_anno.split(':')
-        self.haplotypes = set(fields[4].split(','))
+        self.length = len(fields[4])
+        self.haplotypes = set(fields[5].split(','))
 
     def print(self):
         return self.line
@@ -41,6 +42,14 @@ class mergedVariant: # merged variants at the same coordinates.
         self.add_variant(variant)
 
     def indel_validate(self):
+        if hasattr(self, 'ins_haps') and len(self.ins_haps) > 0:
+            if len(self.mei) == 1:
+                for family in self.mei:
+                    for strand in self.mei[family]:
+                        self.mei[family][strand]['haps'].update(self.ins_haps)
+                del self.ins_haps
+            else:
+                breakpoint()
         if not hasattr(self, 'indel') or not self.indel:
             if (len(self.empty_haps) == 0):
                 self.indel = "INS"
@@ -51,7 +60,7 @@ class mergedVariant: # merged variants at the same coordinates.
         self.end = variant.pos
         self.variant_ids.append(variant.variant_id)
         if variant.is_ref:
-            if variant.mei_anno == "noMEI":
+            if variant.mei_anno == "noMEI" and variant.length == 0:
                 self.indel = "INS"
             else:
                 self.indel = "DEL"
@@ -61,10 +70,13 @@ class mergedVariant: # merged variants at the same coordinates.
             else:
                 self.missing_haps = variant.haplotypes
         elif variant.mei_anno == "noMEI":
-            if len(self.empty_haps) > 0:
-                self.empty_haps = self.empty_haps.intersection(variant.haplotypes)
+            if variant.length == 0:
+                if len(self.empty_haps) > 0:
+                    self.empty_haps = self.empty_haps.intersection(variant.haplotypes)
+                else:
+                    self.empty_haps = variant.haplotypes
             else:
-                self.empty_haps = variant.haplotypes
+                self.ins_haps = variant.haplotypes
         else:
             if self.mei.get(variant.family):
                 if self.mei[variant.family].get(variant.strand):
