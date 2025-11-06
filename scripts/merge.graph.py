@@ -20,6 +20,7 @@ class Variant:
         fields = self.line.split()
         self.chrom = fields[0]
         self.pos = int(fields[1])
+        self.is_ref = True if fields[2] == '0' else False
         self.variant_id = ":".join([self.chrom, str(self.pos), fields[2]])
         self.mei_anno = fields[3]
         if not (self.mei_anno == "none" or self.mei_anno == "noMEI"):
@@ -42,6 +43,11 @@ class mergedVariant: # merged variants at the same coordinates.
     def add_variant(self, variant):
         self.end = variant.pos
         self.variant_ids.append(variant.variant_id)
+        if variant.is_ref:
+            if variant.mei_anno == "noMEI":
+                self.indel = "INS"
+            else:
+                self.indel = "DEL"
         if variant.mei_anno == "none":
             if len(self.missing_haps) > 0:
                 self.missing_haps = self.missing_haps.union(variant.haplotypes)
@@ -69,6 +75,9 @@ class mergedVariant: # merged variants at the same coordinates.
         self.variant_ids.extend(merged_variant.variant_ids)
         self.missing_haps = self.missing_haps.union(merged_variant.missing_haps)
         self.empty_haps = self.empty_haps.intersection(merged_variant.empty_haps)
+        if hasattr(merged_variant, 'indel') and hasattr(self, 'indel'):
+            if self.indel != merged_variant.indel:
+                self.indel = 'UNKNOWN'
         for family in merged_variant.mei:
             for strand in merged_variant.mei[family]:
                 details = merged_variant.mei[family][strand]
@@ -97,7 +106,7 @@ class mergedVariant: # merged variants at the same coordinates.
                 mei_str = f"{key}={value}"
                 samples_list.append(mei_str)
         samples_str = ';'.join(samples_list)
-        return f"{self.chrom}\t{self.start}\t{self.end}\t{samples_str}"
+        return f"{self.chrom}\t{self.start}\t{self.end}\t{self.indel}\t{self.variant_ids}\t{samples_str}"
 
 def merge_per_pos(input_tsv):
     list_merged = []
