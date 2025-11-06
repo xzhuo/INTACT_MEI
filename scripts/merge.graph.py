@@ -25,7 +25,7 @@ class Variant:
         self.mei_anno = fields[3]
         if not (self.mei_anno == "none" or self.mei_anno == "noMEI"):
             (self.mei, self.family, self.strand, self.flag) = self.mei_anno.split(':')
-        self.length = len(fields[4])
+        self.length = int(fields[4])
         self.haplotypes = set(fields[5].split(','))
 
     def print(self):
@@ -76,7 +76,9 @@ class mergedVariant: # merged variants at the same coordinates.
                 else:
                     self.empty_haps = variant.haplotypes
             else:
-                self.ins_haps = variant.haplotypes
+                if not hasattr(self, 'ins_haps'):
+                    self.ins_haps = set()
+                self.ins_haps = self.ins_haps.union(variant.haplotypes)
         else:
             if self.mei.get(variant.family):
                 if self.mei[variant.family].get(variant.strand):
