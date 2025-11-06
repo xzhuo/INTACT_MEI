@@ -55,6 +55,8 @@ class mergedVariant: # merged variants at the same coordinates.
                 self.indel = "INS"
             elif len(self.mei) == 0:
                 self.indel = "DEL"
+            else:
+                self.indel = "UNKNOWN"
 
     def add_variant(self, variant):
         self.end = variant.pos
