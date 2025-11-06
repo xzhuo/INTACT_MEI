@@ -43,7 +43,7 @@ class mergedVariant: # merged variants at the same coordinates.
 
     def indel_validate(self):
         if hasattr(self, 'ins_haps') and len(self.ins_haps) > 0:
-            if len(self.mei) == 1:
+            if len(self.mei) <= 1:
                 for family in self.mei:
                     for strand in self.mei[family]:
                         self.mei[family][strand]['haps'].update(self.ins_haps)
