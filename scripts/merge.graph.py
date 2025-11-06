@@ -139,7 +139,7 @@ def main():
     list_merged = merge_per_pos(input_tsv)
     list_combied_merged = []
     for merged_variant in list_merged:
-        merged_variant.print()
+        merged_variant.indel_validate()
 
         chrom = merged_variant.chrom
         pos = merged_variant.start
