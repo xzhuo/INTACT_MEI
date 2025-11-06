@@ -40,6 +40,13 @@ class mergedVariant: # merged variants at the same coordinates.
         self.mei = {}
         self.add_variant(variant)
 
+    def indel_validate(self):
+        if not hasattr(self, 'indel') or not self.indel:
+            if (len(self.empty_haps) == 0):
+                self.indel = "INS"
+            elif len(self.mei) == 0:
+                self.indel = "DEL"
+
     def add_variant(self, variant):
         self.end = variant.pos
         self.variant_ids.append(variant.variant_id)
@@ -132,6 +139,8 @@ def main():
     list_merged = merge_per_pos(input_tsv)
     list_combied_merged = []
     for merged_variant in list_merged:
+        merged_variant.print()
+
         chrom = merged_variant.chrom
         pos = merged_variant.start
         if list_combied_merged and list_combied_merged[-1].chrom == chrom and list_combied_merged[-1].end + 100 >= pos:
