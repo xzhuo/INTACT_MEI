@@ -78,6 +78,8 @@ class mergedVariant: # merged variants at the same coordinates.
         if hasattr(merged_variant, 'indel') and hasattr(self, 'indel'):
             if self.indel != merged_variant.indel:
                 self.indel = 'UNKNOWN'
+        elif hasattr(merged_variant, 'indel'):
+            self.indel = merged_variant.indel
         for family in merged_variant.mei:
             for strand in merged_variant.mei[family]:
                 details = merged_variant.mei[family][strand]
