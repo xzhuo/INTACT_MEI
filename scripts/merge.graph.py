@@ -129,12 +129,12 @@ class mergedVariant: # merged variants at the same coordinates.
                 the_mei = mode(details['meis'])
                 the_intact = mode(details['intact'])
                 length = int(mode(details['length']))
-                key = f"{the_mei}:{family}:{strand}:{the_intact}"
+                key = f"{the_mei}:{family}:{strand}:{length}:{the_intact}"
                 value = ','.join(details['haps'])
                 mei_str = f"{key}={value}"
                 samples_list.append(mei_str)
         samples_str = ';'.join(samples_list)
-        return f"{self.chrom}\t{self.start}\t{self.end}\t{length}\t{self.indel}\t{self.variant_ids}\t{samples_str}"
+        return f"{self.chrom}\t{self.start}\t{self.end}\t{self.indel}\t{self.variant_ids}\t{samples_str}"
 
 def merge_per_pos(input_tsv):
     list_merged = []
