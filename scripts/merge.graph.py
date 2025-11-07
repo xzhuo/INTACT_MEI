@@ -86,11 +86,12 @@ class mergedVariant: # merged variants at the same coordinates.
                 if self.mei[variant.family].get(variant.strand):
                     self.mei[variant.family][variant.strand]['meis'].append(variant.mei)
                     self.mei[variant.family][variant.strand]['intact'].append(variant.flag)
+                    self.mei[variant.family][variant.strand]['length'].append(variant.length)
                     self.mei[variant.family][variant.strand]['haps'] = self.mei[variant.family][variant.strand]['haps'].union(variant.haplotypes)
                 else:
-                    self.mei[variant.family][variant.strand] = {'meis':[variant.mei], 'intact':[variant.flag], 'haps':variant.haplotypes}
+                    self.mei[variant.family][variant.strand] = {'meis':[variant.mei], 'intact':[variant.flag], 'length':[variant.length], 'haps':variant.haplotypes}
             else:
-                self.mei[variant.family] = {variant.strand:{'meis':[variant.mei], 'intact':[variant.flag], 'haps':variant.haplotypes}}
+                self.mei[variant.family] = {variant.strand:{'meis':[variant.mei], 'intact':[variant.flag], 'length':[variant.length], 'haps':variant.haplotypes}}
 
     def combine_variants(self,merged_variant):
         self.start = min(self.start, merged_variant.start)
@@ -110,6 +111,7 @@ class mergedVariant: # merged variants at the same coordinates.
                     if self.mei[family].get(strand):
                         self.mei[family][strand]['meis'].extend(details['meis'])
                         self.mei[family][strand]['intact'].extend(details['intact'])
+                        self.mei[family][strand]['length'].extend(details['length'])
                         self.mei[family][strand]['haps'] = self.mei[family][strand]['haps'].union(details['haps'])
                     else:
                         self.mei[family][strand] = details
@@ -126,12 +128,13 @@ class mergedVariant: # merged variants at the same coordinates.
                 details = self.mei[family][strand]
                 the_mei = mode(details['meis'])
                 the_intact = mode(details['intact'])
+                length = int(mode(details['length']))
                 key = f"{the_mei}:{family}:{strand}:{the_intact}"
                 value = ','.join(details['haps'])
                 mei_str = f"{key}={value}"
                 samples_list.append(mei_str)
         samples_str = ';'.join(samples_list)
-        return f"{self.chrom}\t{self.start}\t{self.end}\t{self.indel}\t{self.variant_ids}\t{samples_str}"
+        return f"{self.chrom}\t{self.start}\t{self.end}\t{length}\t{self.indel}\t{self.variant_ids}\t{samples_str}"
 
 def merge_per_pos(input_tsv):
     list_merged = []
